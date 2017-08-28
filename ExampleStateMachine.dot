@@ -1,0 +1,14 @@
+digraph{
+state_empty -> state_open[label="event_open_close"];
+state_empty -> state_stopped[label="event_cd_detected"];
+state_open -> state_empty[label="event_open_close"];
+state_stopped -> state_open[label="event_open_close"];
+state_stopped -> state_stopped[label="event_stop"];
+state_stopped -> state_playing[label="event_play"];
+state_paused -> state_open[label="event_open_close"];
+state_paused -> state_stopped[label="event_stop"];
+state_paused -> state_playing[label="event_pause"];
+state_playing -> state_open[label="event_open_close"];
+state_playing -> state_paused[label="event_pause"];
+state_playing -> state_stopped[label="event_stop"];
+}
