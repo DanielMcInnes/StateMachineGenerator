@@ -67,9 +67,8 @@ public:
         myfile << "public:"<< endl;
 
         myfile << "    enum State" << "{" << endl;
-        for (auto it = m_states.begin(); it != m_states.end(); ++it)
-        
-{
+        for (auto it = m_states.begin(); it != m_states.end(); ++it)        
+        {
             myfile << "        " << *it;
             if((it + 1) != m_states.end())
             {
@@ -80,12 +79,34 @@ public:
         myfile << "    };"<< endl;
         myfile << endl;
 
-        myfile << "State m_state;" << endl;
+
+
+
+
+        myfile << "    enum Event" << "{" << endl;
+        myfile << "        event_null," << endl;
+        for (auto it = m_events.begin(); it != m_events.end(); ++it)
+        {
+            myfile << "        " << *it;
+            if((it + 1) != m_events.end())
+            {
+                myfile << ",";
+            }
+            myfile << endl;
+        }
+        myfile << "    };"<< endl;
+        myfile << endl;
+
+
+myfile << "    State m_state;" << endl;
+        myfile << endl;
+
+        myfile << "    StateMachine(State _state) : m_state(_state) {}" << endl << endl;
 
 
         for (auto it = m_states.begin(); it != m_states.end(); ++it)
         {
-            myfile << "    void Enter_" << *it << "();" << endl;
+            myfile << "    Event Enter_" << *it << "();" << endl;
         }
         myfile << endl;
 
@@ -108,21 +129,6 @@ public:
         myfile << "        return retval;" << endl;
         myfile << "    }" << endl;
         myfile << endl;
-
-        myfile << "    enum Event" << "{" << endl;
-        myfile << "        event_null," << endl;
-        for (auto it = m_events.begin(); it != m_events.end(); ++it)
-        {
-            myfile << "        " << *it;
-            if((it + 1) != m_events.end())
-            {
-                myfile << ",";
-            }
-            myfile << endl;
-        }
-        myfile << "    };"<< endl;
-        myfile << endl;
-
 
 
         myfile << "    const char* ToString(const Event _event)" << endl;
@@ -164,12 +170,13 @@ public:
             {
                 myfile << "        case " << it2->first << ":" << endl;
                 myfile << "            SetState(" << it2->second <<");" << endl;
-                myfile << "            Enter_" << it2->second << "();" << endl;
+                myfile << "            _event = Enter_" << it2->second << "();" << endl;
                 myfile << "            break;" << endl;
             }
 
             myfile << "            default: _event = event_null; break;" << endl;
             myfile << "        }" << endl;
+            myfile << "        return _event;" << endl;
             myfile << "    }" << endl;
 
         }
@@ -210,8 +217,9 @@ public:
         myfile << "#include \"" << headerfilename << "\"" << endl;
         for (auto it = m_states.begin(); it != m_states.end(); ++it)
         {
-            myfile << "void " << classname << "::" << "Enter_" << *it << "()" << endl;
+            myfile << classname << "::Event " << classname << "::" << "Enter_" << *it << "()" << endl;
             myfile << "{" << endl;
+            myfile << "    return event_null;" << endl;
             myfile << "}" << endl;
         }
 
