@@ -25,6 +25,7 @@ public:
 template <class CONTAINER, class ITEM>
 void add_once(CONTAINER& container, ITEM item)
 {
+    cout << __PRETTY_FUNCTION__ << ": " << item << "." << endl;
     if (find(container.begin(), container.end(), item) == container.end())
     {
         container.push_back(item);
@@ -35,6 +36,7 @@ class Transitions
 {
 public:
 
+    ~Transitions(){}
     bool Add(Transition _t)
     {
         add_once(m_states, _t.m_state1);
@@ -101,12 +103,12 @@ public:
 myfile << "    State m_state;" << endl;
         myfile << endl;
 
-        myfile << "    StateMachine(State _state) : m_state(_state) {}" << endl << endl;
+        myfile << "    " << classname << "(State _state) : m_state(_state) {}" << endl << endl;
 
 
         for (auto it = m_states.begin(); it != m_states.end(); ++it)
         {
-            myfile << "    Event Enter_" << *it << "();" << endl;
+            myfile << "    virtual Event Enter_" << *it << "();" << endl;
         }
         myfile << endl;
 
@@ -159,14 +161,15 @@ myfile << "    State m_state;" << endl;
 
         
 
-        for (auto it = m_transitions.begin(); it != m_transitions.end(); ++it)
+        for (auto it = m_states.begin(); it != m_states.end(); ++it)
         {
-            myfile << "    Event " << it->first << "_handle_event(Event _event)" << endl;
+            myfile << "    Event " << *it << "_handle_event(Event _event)" << endl;
             myfile << "    {" << endl;
             myfile << "        switch (_event)" << endl;
             myfile << "        {" << endl;
 
-            for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+            // map<string, map<string, string> > m_transitions; // state1[event] = state2
+            for (auto it2 = m_transitions[*it].begin(); it2 != m_transitions[*it].end(); ++it2)
             {
                 myfile << "        case " << it2->first << ":" << endl;
                 myfile << "            SetState(" << it2->second <<");" << endl;
@@ -184,7 +187,7 @@ myfile << "    State m_state;" << endl;
 
 
 
-        myfile << "    State HandleEvent(Event _event)" << endl;
+        myfile << "    Event HandleEvent(Event _event)" << endl;
         myfile << "    {" << endl;
         myfile << "        while (_event != event_null)" << endl;
         myfile << "        {" << endl;
@@ -207,6 +210,7 @@ myfile << "    State m_state;" << endl;
 
 
         myfile << "        }" << endl;
+        myfile << "        return event_null;" << endl;
         myfile << "    }" << endl;
         myfile << "};"<< endl;
 
@@ -258,7 +262,7 @@ int main(int argc, char* argv[])
     string content;
 
     bool inside_digraph = false;
-    int first_space, arrow, second_space, open_bracket, close_bracket, label;
+    size_t first_space, open_bracket, close_bracket, label;
 
     while (getline(dotfile, content))
     {
@@ -308,8 +312,6 @@ int main(int argc, char* argv[])
 
     }
 
-    size_t end = infile.find_first_of(".dot");
-    
     transitions.CreateHeaderFile(outheaderfile, outsourcefile, classname);
 
     return 0;
